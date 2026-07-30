@@ -1,23 +1,40 @@
 # server/database/create_tables.py
 
-from database.db import get_connection
+
+"""
+Creates all server database tables.
+
+The server database is the permanent
+source of truth for:
+- users
+- contacts
+- chats
+- files
+"""
+
+
+from server.database.db import get_connection
+
 
 
 def create_tables():
+
     """
-    Creates all required database tables
-    for the Desktop Chat Server.
+    Creates required database tables.
     """
 
+
     connection = get_connection()
+
 
     cursor = connection.cursor()
 
 
-    # =====================================
-    # Users Table
-    # Stores all registered users
-    # =====================================
+
+    # ================================
+    # USERS TABLE
+    # ================================
+
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
@@ -28,7 +45,7 @@ def create_tables():
 
             password_hash TEXT NOT NULL,
 
-            full_name TEXT,
+            full_name TEXT NOT NULL,
 
             profile_picture TEXT,
 
@@ -43,10 +60,10 @@ def create_tables():
 
 
 
-    # =====================================
-    # Contacts Table
-    # Stores user relationships
-    # =====================================
+    # ================================
+    # CONTACTS TABLE
+    # ================================
+
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS contacts (
@@ -70,10 +87,10 @@ def create_tables():
 
 
 
-    # =====================================
-    # Chats Table
-    # Stores messages
-    # =====================================
+    # ================================
+    # CHATS TABLE
+    # ================================
+
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS chats (
@@ -107,10 +124,10 @@ def create_tables():
 
 
 
-    # =====================================
-    # Files Table
-    # Stores uploaded file information
-    # =====================================
+    # ================================
+    # FILES TABLE
+    # ================================
+
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS files (
@@ -143,13 +160,13 @@ def create_tables():
     """)
 
 
-    # Save changes
+
     connection.commit()
 
 
-    # Close connection
     connection.close()
 
 
-    print("Server database tables created successfully.")
-    
+    print(
+        "Server database tables created successfully."
+    )

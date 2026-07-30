@@ -4,24 +4,50 @@
 """
 WebSocket event names.
 
-Prevents typing event strings
-multiple times throughout the project.
+Both client and server use
+these constants.
+
+This prevents duplicated
+string values.
 """
 
 
 CONNECT = "CONNECT"
 
+
 DISCONNECT = "DISCONNECT"
+
 
 
 PING = "PING"
 
+
 PONG = "PONG"
+
 
 
 LOGIN = "LOGIN"
 
+
+LOGIN_SUCCESS = "LOGIN_SUCCESS"
+
+
+LOGIN_FAILED = "LOGIN_FAILED"
+
+
+
 REGISTER = "REGISTER"
+
+
+REGISTER_SUCCESS = "REGISTER_SUCCESS"
+
+
+REGISTER_FAILED = "REGISTER_FAILED"
+
+
+
+LOGOUT = "LOGOUT"
+
 
 
 MESSAGE = "MESSAGE"

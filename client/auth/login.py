@@ -4,27 +4,31 @@
 """
 Client login module.
 
-Responsible for:
-- Preparing login request
-- Sending authentication request
+Sends login request
+to server.
 """
 
 
-from modules.network.connection import send_request
+from shared.protocol import create_packet
+
+from shared.events import LOGIN
+
+from client.modules.network.connection import send_request
 
 
 
 def login_user(username, password):
+
     """
-    Sends login request to server.
+    Authenticate user with server.
     """
 
 
-    request = {
+    packet = create_packet(
 
-        "event": "LOGIN",
+        LOGIN,
 
-        "data": {
+        {
 
             "username": username,
 
@@ -32,11 +36,13 @@ def login_user(username, password):
 
         }
 
-    }
+    )
 
 
     response = send_request(
-        request
+
+        packet
+
     )
 
 

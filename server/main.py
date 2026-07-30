@@ -1,18 +1,48 @@
 # server/main.py
 
+
+"""
+Desktop Chat Server
+
+Main server entry point.
+
+Responsibilities:
+- Starts FastAPI server
+- Creates WebSocket endpoint
+- Receives client events
+- Routes authentication requests
+- Tracks connected users
+"""
+
+
 from fastapi import FastAPI
 from fastapi import WebSocket
 from fastapi import WebSocketDisconnect
+
 import uvicorn
 
-from config import SERVER_HOST
-from config import SERVER_PORT
-from config import WEBSOCKET_ENDPOINT
+from server.config import SERVER_HOST
+from server.config import SERVER_PORT
+from server.config import WEBSOCKET_ENDPOINT
 
-from websocket_manager import connect_client
-from websocket_manager import disconnect_client
+from server.database.create_tables import create_tables
+from server.database.queries import update_user_status
 
-from database.create_tables import create_tables
+from server.websocket_manager import connect_client
+from server.websocket_manager import disconnect_client
+from server.websocket_manager import register_user_connection
+from server.websocket_manager import remove_user_connection
+
+from server.auth.authentication import login
+from server.auth.authentication import register
+
+from shared.protocol import read_packet
+
+from shared.events import LOGIN
+from shared.events import REGISTER
+from shared.events import LOGOUT
+from shared.events import LOGIN_SUCCESS
+
 
 app = FastAPI(
     title="Desktop Chat Server"
@@ -21,21 +51,24 @@ app = FastAPI(
 
 @app.on_event("startup")
 async def startup_event():
+    """
+    Runs when the server starts.
+    """
 
-    # Create database tables
     create_tables()
-
 
     print("=" * 50)
     print("Desktop Chat Server Started...")
-    print(f"Listening on {SERVER_HOST}:{SERVER_PORT}")
+    print(
+        f"Listening on {SERVER_HOST}:{SERVER_PORT}"
+    )
     print("=" * 50)
 
 
 @app.get("/")
 def home():
     """
-    Simple health check endpoint.
+    Server health check.
     """
 
     return {
@@ -45,35 +78,155 @@ def home():
 
 
 @app.websocket(WEBSOCKET_ENDPOINT)
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(
+        websocket: WebSocket
+):
     """
-    Temporary WebSocket endpoint.
+    Main WebSocket endpoint.
+
+    Receives packets from clients
+    and routes them to the correct
+    server functionality.
     """
 
-    await connect_client(websocket)
+    await connect_client(
+        websocket
+    )
 
     try:
 
         while True:
 
-            data = await websocket.receive_text()
+            # ---------------------------------
+            # Receive packet from client
+            # ---------------------------------
 
-            print(f"Received: {data}")
+            message = await websocket.receive_text()
 
-            # Temporary echo response
-            await websocket.send_text(f"Server received: {data}")
+            print(
+                "Received:",
+                message
+            )
+
+            packet = read_packet(
+                message
+            )
+
+            event = packet.get(
+                "event"
+            )
+
+            data = packet.get(
+                "data",
+                {}
+            )
+
+            response = None
+
+            # ---------------------------------
+            # User Registration
+            # ---------------------------------
+
+            if event == REGISTER:
+
+                response = register(
+                    data
+                )
+
+            # ---------------------------------
+            # User Login
+            # ---------------------------------
+
+            elif event == LOGIN:
+
+                response = login(
+                    data
+                )
+
+                # Login successful
+                # Associate this socket with
+                # the authenticated user.
+
+                if response is not None:
+
+                    login_packet = read_packet(
+                        response
+                    )
+
+                    if login_packet["event"] == LOGIN_SUCCESS:
+
+                        user_id = login_packet["data"]["user_id"]
+
+                        register_user_connection(
+                            user_id,
+                            websocket
+                        )
+
+                        update_user_status(
+                            user_id,
+                            "Online"
+                        )
+
+                        print(
+                            f"User {user_id} logged in."
+                        )
+
+            # ---------------------------------
+            # User Logout
+            # ---------------------------------
+
+            elif event == LOGOUT:
+
+                user_id = data.get(
+                    "user_id"
+                )
+
+                if user_id is not None:
+
+                    remove_user_connection(
+                        user_id
+                    )
+
+                    print(
+                        f"User {user_id} logged out."
+                    )
+
+            # ---------------------------------
+            # Unknown Event
+            # ---------------------------------
+
+            else:
+
+                print(
+                    f"Unknown event: {event}"
+                )
+
+            # ---------------------------------
+            # Send response back to client
+            # ---------------------------------
+
+            if response is not None:
+
+                await websocket.send_text(
+                    response
+                )
 
     except WebSocketDisconnect:
 
-        disconnect_client(websocket)
+        print(
+            "Client disconnected."
+        )
+
+        disconnect_client(
+            websocket
+        )
 
 
 if __name__ == "__main__":
 
     uvicorn.run(
-        "main:app",
+        "server.main:app",
         host=SERVER_HOST,
         port=SERVER_PORT,
         reload=True
     )
-    

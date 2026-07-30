@@ -1,7 +1,7 @@
 # client/database/create_tables.py
 
 
-from database.db import get_connection
+from client.database.db import get_connection
 
 
 

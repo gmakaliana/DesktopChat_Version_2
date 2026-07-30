@@ -5,12 +5,21 @@
 Client registration module.
 
 Responsible for:
-- Collecting registration data
+- Creating registration packet
 - Sending registration request
+- Returning server response
 """
 
 
-from modules.network.connection import send_request
+from shared.protocol import create_packet
+
+
+from shared.events import REGISTER
+
+
+from client.modules.network.connection import send_request
+
+
 
 
 
@@ -26,11 +35,12 @@ def register_user(
     """
 
 
-    request = {
 
-        "event": "REGISTER",
+    packet = create_packet(
 
-        "data": {
+        REGISTER,
+
+        {
 
             "username": username,
 
@@ -40,12 +50,16 @@ def register_user(
 
         }
 
-    }
+    )
+
 
 
     response = send_request(
-        request
+
+        packet
+
     )
+
 
 
     return response

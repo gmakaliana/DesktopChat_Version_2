@@ -1,27 +1,37 @@
-# client/modules/network/connection.py
-
-
 """
 High level networking interface.
 
-Other parts of the client
-use this file.
+Other client modules use this file.
 
 GUI and authentication modules
-do not communicate directly
-with websocket_client.py.
+never communicate directly with
+websocket_client.py.
+
+Responsibilities:
+- initialize connection
+- send requests
+- receive responses
 """
 
 
-from modules.network.websocket_client import connect
 
-from modules.network.websocket_client import send
+from client.modules.network.websocket_client import connect
 
-from modules.network.websocket_client import receive
+from client.modules.network.websocket_client import send
+
+from client.modules.network.websocket_client import receive
 
 
 
+
+
+# Desktop Chat Server address
 SERVER_URL = "ws://127.0.0.1:8000/ws"
+
+
+
+
+
 
 
 
@@ -29,39 +39,96 @@ def initialize_network():
 
     """
     Initializes WebSocket communication.
+
+    Returns:
+        True  - connected
+        False - failed
     """
 
 
-    try:
 
-        connect(
-            SERVER_URL
-        )
+    result = connect(
 
+        SERVER_URL
 
-    except Exception as error:
+    )
 
 
-        print(
-            "Network initialization failed:",
-            error
-        )
+
+    return result
+
+
+
+
+
 
 
 
 def send_request(data):
 
     """
-    Send request and wait for response.
+    Sends request to server
+    and waits for response.
+
+    Converts server JSON response
+    into Python dictionary.
     """
 
 
-    send(
+    import json
+
+
+
+    sent = send(
+
         data
+
     )
+
+
+
+    # Stop if sending failed
+
+    if not sent:
+
+
+        return None
+
+
 
 
     response = receive()
 
 
-    return response
+
+    if response:
+
+
+        try:
+
+
+            return json.loads(
+
+                response
+
+            )
+
+
+        except Exception as error:
+
+
+            print(
+
+                "Response decode error:",
+
+                error
+
+            )
+
+
+            return None
+
+
+
+
+    return None

@@ -1,47 +1,97 @@
 # server/websocket_manager.py
 
-from fastapi import WebSocket
+
+"""
+WebSocket connection manager.
+
+Responsible for:
+
+- accepting connections
+- tracking logged-in users
+- mapping users to sockets
+"""
 
 
-# List of currently connected clients
-active_connections = []
+from server.database.queries import update_last_seen
+from server.database.queries import update_user_status
 
 
-async def connect_client(websocket: WebSocket):
+connected_users = {}
+
+
+async def connect_client(websocket):
     """
-    Accept a new WebSocket connection
-    and add it to the active connections.
+    Accept a new client.
     """
 
     await websocket.accept()
 
-    active_connections.append(websocket)
-
-    print(f"Client connected ({len(active_connections)} online)")
+    print("Client connected")
 
 
-def disconnect_client(websocket: WebSocket):
+def register_user_connection(
+        user_id,
+        websocket
+):
     """
-    Remove a disconnected client.
+    Associates a logged-in user
+    with a WebSocket connection.
     """
 
-    if websocket in active_connections:
-        active_connections.remove(websocket)
+    connected_users[user_id] = websocket
 
-    print(f"Client disconnected ({len(active_connections)} online)")
+    print(f"User {user_id} connected.")
+
+
+def remove_user_connection(user_id):
+    """
+    Removes a user's connection.
+    """
+
+    if user_id in connected_users:
+
+        del connected_users[user_id]
+
+    update_user_status(
+        user_id,
+        "Offline"
+    )
+
+    update_last_seen(
+        user_id
+    )
+
+
+def disconnect_client(websocket):
+    """
+    Handles unexpected disconnect.
+    """
+
+    disconnected_user = None
+
+    for user_id, socket in connected_users.items():
+
+        if socket == websocket:
+
+            disconnected_user = user_id
+
+            break
+
+    if disconnected_user is not None:
+
+        remove_user_connection(
+            disconnected_user
+        )
+
+    print(
+        "Active users:",
+        len(connected_users)
+    )
 
 
 def get_connected_clients():
     """
-    Return all connected clients.
+    Returns connected users.
     """
 
-    return active_connections
-
-
-def get_online_count():
-    """
-    Return number of connected clients.
-    """
-
-    return len(active_connections)
+    return connected_users

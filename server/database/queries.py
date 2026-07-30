@@ -2,37 +2,158 @@
 
 
 """
-This file contains database query functions.
+Database query functions.
 
-The server business logic will call these
-functions instead of writing SQL directly.
+Authentication and server logic
+use these functions instead of
+writing SQL directly.
 """
 
 
-from database.db import get_connection
+from server.database.db import get_connection
 
 
-
-def check_database():
+def create_user(
+        username,
+        password_hash,
+        full_name
+):
     """
-    Test database connection.
+    Creates a new user.
     """
 
     connection = get_connection()
 
     cursor = connection.cursor()
 
+    try:
 
-    cursor.execute(
-        "SELECT name FROM sqlite_master WHERE type='table'"
-    )
+        cursor.execute("""
+
+            INSERT INTO users
+            (
+                username,
+                password_hash,
+                full_name
+            )
+
+            VALUES (?, ?, ?)
+
+        """,
+
+        (
+            username,
+            password_hash,
+            full_name
+        ))
+
+        connection.commit()
+
+        return True
+
+    except Exception as error:
+
+        print(
+            "Create user error:",
+            error
+        )
+
+        return False
+
+    finally:
+
+        connection.close()
 
 
-    tables = cursor.fetchall()
+def get_user_by_username(username):
+    """
+    Finds user by username.
+    """
 
+    connection = get_connection()
+
+    cursor = connection.cursor()
+
+    cursor.execute("""
+
+        SELECT *
+
+        FROM users
+
+        WHERE username = ?
+
+    """,
+
+    (
+        username,
+    ))
+
+    user = cursor.fetchone()
 
     connection.close()
 
+    return user
 
-    return tables
 
+def update_user_status(
+        user_id,
+        status
+):
+    """
+    Updates user's online status.
+    """
+
+    connection = get_connection()
+
+    cursor = connection.cursor()
+
+    cursor.execute("""
+
+        UPDATE users
+
+        SET status = ?
+
+        WHERE user_id = ?
+
+    """,
+
+    (
+        status,
+        user_id
+    ))
+
+    connection.commit()
+
+    connection.close()
+
+    return True
+
+
+def update_last_seen(user_id):
+    """
+    Updates last seen timestamp.
+    """
+
+    connection = get_connection()
+
+    cursor = connection.cursor()
+
+    cursor.execute("""
+
+        UPDATE users
+
+        SET last_seen = CURRENT_TIMESTAMP
+
+        WHERE user_id = ?
+
+    """,
+
+    (
+        user_id,
+    ))
+
+    connection.commit()
+
+    connection.close()
+
+    return True

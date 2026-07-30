@@ -5,7 +5,7 @@
 Login Window
 
 Responsible for:
-- collecting username and password
+- collecting username/password
 - sending login request
 - opening home window after success
 
@@ -14,12 +14,14 @@ inside client/auth/login.py.
 """
 
 
+
 import tkinter as tk
 
 from tkinter import messagebox
 
 
-from modules.utils.gui_theme import (
+
+from client.modules.utils.gui_theme import (
 
     BACKGROUND_COLOR,
 
@@ -30,7 +32,8 @@ from modules.utils.gui_theme import (
 )
 
 
-from modules.utils.window_utils import (
+
+from client.modules.utils.window_utils import (
 
     center_window,
 
@@ -39,41 +42,57 @@ from modules.utils.window_utils import (
 )
 
 
-from auth.login import login_user
+
+from client.auth.login import login_user
 
 
-from modules.users.users import set_current_user
+from client.modules.users.users import set_current_user
 
 
-from gui.home_window import open_home_window
+from client.gui.home_window import open_home_window
+
+
 
 
 
 def open_login_window():
 
     """
-    Opens the main login window.
+    Creates and opens the login window.
     """
+
 
 
     window = tk.Tk()
 
 
+
     window.title(
+
         "Desktop Chat System"
+
     )
+
 
 
     center_window(
+
         window,
+
         450,
+
         350
+
     )
+
 
 
     window.configure(
+
         bg=BACKGROUND_COLOR
+
     )
+
 
 
     window.protocol(
@@ -84,6 +103,13 @@ def open_login_window():
 
     )
 
+
+
+
+
+    # =====================================
+    # Application Title
+    # =====================================
 
 
     title = tk.Label(
@@ -100,12 +126,38 @@ def open_login_window():
 
 
     title.pack(
+
         pady=40
+
     )
 
 
 
-    username = tk.Entry(
+
+
+    # =====================================
+    # Username
+    # =====================================
+
+
+    username_label = tk.Label(
+
+        window,
+
+        text="Username",
+
+        font=NORMAL_FONT,
+
+        bg=BACKGROUND_COLOR
+
+    )
+
+
+    username_label.pack()
+
+
+
+    username_entry = tk.Entry(
 
         window,
 
@@ -114,13 +166,39 @@ def open_login_window():
     )
 
 
-    username.pack(
+    username_entry.pack(
+
         pady=5
+
     )
 
 
 
-    password = tk.Entry(
+
+
+    # =====================================
+    # Password
+    # =====================================
+
+
+    password_label = tk.Label(
+
+        window,
+
+        text="Password",
+
+        font=NORMAL_FONT,
+
+        bg=BACKGROUND_COLOR
+
+    )
+
+
+    password_label.pack()
+
+
+
+    password_entry = tk.Entry(
 
         window,
 
@@ -131,54 +209,112 @@ def open_login_window():
     )
 
 
-    password.pack(
+    password_entry.pack(
+
         pady=5
+
     )
 
+
+
+
+
+    # =====================================
+    # Login Action
+    # =====================================
 
 
     def login_action():
 
         """
-        Handles login button click.
+        Sends login request
+        to authentication module.
         """
 
 
-        username_value = username.get()
 
-        password_value = password.get()
+        username = username_entry.get()
+
+        password = password_entry.get()
+
+
+
+
+        if username == "" or password == "":
+
+
+            messagebox.showwarning(
+
+                "Missing Information",
+
+                "Please enter username and password."
+
+            )
+
+
+            return
+
+
 
 
 
         response = login_user(
 
-            username_value,
+            username,
 
-            password_value
+            password
 
         )
 
 
 
-        if response["success"]:
 
 
-            # Save logged-in user
+        if response is None:
 
-            set_current_user(
 
-                response["user"]
+            messagebox.showerror(
+
+                "Connection Error",
+
+                "Unable to communicate with server."
 
             )
 
 
-            # Open dashboard
+            return
+
+
+
+
+
+        if response.get("event") == "LOGIN_SUCCESS":
+
+
+
+            user_data = response.get(
+
+                "data"
+
+            )
+
+
+
+            set_current_user(
+
+                user_data
+
+            )
+
+
 
             open_home_window(
 
                 window
 
             )
+
+
 
 
 
@@ -193,6 +329,15 @@ def open_login_window():
 
             )
 
+
+
+
+
+
+
+    # =====================================
+    # Login Button
+    # =====================================
 
 
     login_button = tk.Button(
@@ -214,6 +359,13 @@ def open_login_window():
 
 
 
+
+
+    # =====================================
+    # Register Window
+    # =====================================
+
+
     def open_register():
 
         """
@@ -221,7 +373,8 @@ def open_login_window():
         """
 
 
-        from gui.register_window import open_register_window
+        from client.gui.register_window import open_register_window
+
 
 
         open_register_window(
@@ -229,6 +382,9 @@ def open_login_window():
             window
 
         )
+
+
+
 
 
 
@@ -244,6 +400,8 @@ def open_login_window():
 
 
     register_button.pack()
+
+
 
 
 

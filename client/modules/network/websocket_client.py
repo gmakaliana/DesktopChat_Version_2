@@ -1,11 +1,17 @@
 """
 Low-level WebSocket client.
 
-Handles:
-- connect
-- disconnect
-- send
-- receive
+Responsibilities:
+- create WebSocket connection
+- disconnect from server
+- send data
+- receive data
+
+This file communicates directly
+with the WebSocket library.
+
+Other client modules should NOT
+import this file directly.
 """
 
 
@@ -13,7 +19,10 @@ import websocket
 
 
 
+# Stores the active WebSocket connection
 connection = None
+
+
 
 
 
@@ -21,22 +30,58 @@ def connect(url):
 
     """
     Creates WebSocket connection.
+
+    Parameters:
+        url:
+            Server WebSocket address.
+
+    Returns:
+        True  - connection successful
+        False - connection failed
     """
 
     global connection
 
 
-    connection = websocket.WebSocket()
+    try:
+
+        # Create WebSocket object
+        connection = websocket.WebSocket()
 
 
-    connection.connect(
-        url
-    )
+        # Connect to server
+        connection.connect(
+            url
+        )
 
 
-    print(
-        "Connected to server."
-    )
+        print(
+            "Connected to server."
+        )
+
+
+        return True
+
+
+
+    except Exception as error:
+
+
+        print(
+            "WebSocket connection failed:",
+            error
+        )
+
+
+        connection = None
+
+
+        return False
+
+
+
+
+
 
 
 
@@ -49,14 +94,24 @@ def disconnect():
     global connection
 
 
+
     if connection:
+
 
         connection.close()
 
 
+        connection = None
+
+
         print(
-            "Disconnected."
+            "Disconnected from server."
         )
+
+
+
+
+
 
 
 
@@ -64,25 +119,86 @@ def send(message):
 
     """
     Sends data to server.
+
+    Parameters:
+        message:
+            Data to send.
+
+    Returns:
+        True  - sent successfully
+        False - failed
     """
+
 
     if connection:
 
-        connection.send(
-            message
-        )
+
+        try:
+
+
+            connection.send(
+                message
+            )
+
+
+            return True
+
+
+
+        except Exception as error:
+
+
+            print(
+                "Send error:",
+                error
+            )
+
+
+            return False
+
+
+
+    return False
+
+
+
+
+
 
 
 
 def receive():
 
     """
-    Receives server response.
+    Receives response from server.
+
+    Returns:
+        Server response
+        None if failed
     """
+
 
     if connection:
 
-        return connection.recv()
+
+        try:
+
+
+            return connection.recv()
+
+
+
+        except Exception as error:
+
+
+            print(
+                "Receive error:",
+                error
+            )
+
+
+            return None
+
 
 
     return None

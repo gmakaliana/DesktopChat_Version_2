@@ -17,7 +17,7 @@ Future functionality:
 
 import tkinter as tk
 
-from modules.utils.window_utils import center_window
+from client.modules.utils.window_utils import center_window
 
 
 
