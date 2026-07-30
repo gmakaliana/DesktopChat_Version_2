@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+.env/
+
+# VS Code
+.vscode/
+
+# PyInstaller
+build/
+dist/
+*.spec
+
+# Logs
+*.log
+server/logs/
+
+# Local Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Client Downloads
+client/downloads/
+
+# Client Upload Cache
+client/uploads/
+
+# Server Uploads
+server/uploads/
+
+# Temporary Files
+*.tmp
+*.bak
+*.swp
+
+# Operating System
+Thumbs.db
+Desktop.ini
+.DS_Store
