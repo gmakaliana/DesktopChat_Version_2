@@ -12,6 +12,7 @@ from config import WEBSOCKET_ENDPOINT
 from websocket_manager import connect_client
 from websocket_manager import disconnect_client
 
+from database.create_tables import create_tables
 
 app = FastAPI(
     title="Desktop Chat Server"
@@ -20,9 +21,10 @@ app = FastAPI(
 
 @app.on_event("startup")
 async def startup_event():
-    """
-    Runs once when the server starts.
-    """
+
+    # Create database tables
+    create_tables()
+
 
     print("=" * 50)
     print("Desktop Chat Server Started...")
