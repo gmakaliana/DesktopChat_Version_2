@@ -8,9 +8,20 @@ Main application dashboard.
 import tkinter as tk
 
 
-
 from client.modules.utils.window_utils import center_window
 
+
+from client.modules.utils.gui_theme import (
+
+    BACKGROUND_COLOR,
+
+    TITLE_FONT,
+
+    BUTTON_FONT,
+
+    LOGOUT_BUTTON_COLOR
+
+)
 
 
 from client.modules.users.users import (
@@ -20,7 +31,6 @@ from client.modules.users.users import (
     get_current_user
 
 )
-
 
 
 from client.modules.users.status import set_offline
@@ -63,26 +73,30 @@ def open_home_window(login_window):
 
 
 
-    label = tk.Label(
+    window.configure(
+
+        bg=BACKGROUND_COLOR
+
+    )
+
+
+
+
+
+    title = tk.Label(
 
         window,
 
         text="Home Dashboard",
 
-        font=(
+        font=TITLE_FONT,
 
-            "Arial",
-
-            16,
-
-            "bold"
-
-        )
+        bg=BACKGROUND_COLOR
 
     )
 
 
-    label.pack(
+    title.pack(
 
         pady=50
 
@@ -135,13 +149,29 @@ def open_home_window(login_window):
 
 
 
+
+    # =====================================
+    # Logout Button
+    # =====================================
+
+
     logout_button = tk.Button(
 
         window,
 
         text="Logout",
 
-        command=logout
+        command=logout,
+
+        width=12,
+
+        font=BUTTON_FONT,
+
+        bg=LOGOUT_BUTTON_COLOR,
+
+        fg="white",
+
+        activebackground=LOGOUT_BUTTON_COLOR
 
     )
 
@@ -149,5 +179,23 @@ def open_home_window(login_window):
     logout_button.pack(
 
         pady=20
+
+    )
+
+
+
+
+
+    # =====================================
+    # Prevent application exit
+    # X behaves like Logout
+    # =====================================
+
+
+    window.protocol(
+
+        "WM_DELETE_WINDOW",
+
+        logout
 
     )

@@ -1,6 +1,3 @@
-# client/gui/chat_window.py
-
-
 """
 Chat Window
 
@@ -17,7 +14,27 @@ Future functionality:
 
 import tkinter as tk
 
+
 from client.modules.utils.window_utils import center_window
+
+
+from client.modules.utils.gui_theme import (
+
+    BACKGROUND_COLOR,
+
+    TITLE_FONT,
+
+    NORMAL_FONT,
+
+    BUTTON_FONT,
+
+    SEND_BUTTON_COLOR,
+
+    BACK_BUTTON_COLOR
+
+)
+
+
 
 
 
@@ -31,7 +48,9 @@ def open_chat_window(parent_window):
     parent_window.withdraw()
 
 
+
     window = tk.Toplevel()
+
 
 
     window.title(
@@ -39,11 +58,27 @@ def open_chat_window(parent_window):
     )
 
 
+
     center_window(
+
         window,
+
         700,
+
         600
+
     )
+
+
+
+    window.configure(
+
+        bg=BACKGROUND_COLOR
+
+    )
+
+
+
 
 
     title = tk.Label(
@@ -52,27 +87,35 @@ def open_chat_window(parent_window):
 
         text="Chat Window",
 
-        font=(
-            "Arial",
-            16,
-            "bold"
-        )
+        font=TITLE_FONT,
+
+        bg=BACKGROUND_COLOR
 
     )
 
 
     title.pack(
+
         pady=20
+
     )
 
 
-    # Message display area
+
+
+
+    # =====================================
+    # Message Display Area
+    # =====================================
+
 
     message_area = tk.Text(
 
         window,
 
-        height=20
+        height=20,
+
+        font=NORMAL_FONT
 
     )
 
@@ -91,10 +134,19 @@ def open_chat_window(parent_window):
 
 
 
-    # Message input area
+
+
+    # =====================================
+    # Message Input Area
+    # =====================================
+
 
     message_input = tk.Entry(
-        window
+
+        window,
+
+        font=NORMAL_FONT
+
     )
 
 
@@ -102,24 +154,47 @@ def open_chat_window(parent_window):
 
         fill="x",
 
-        padx=20
+        padx=20,
+
+        pady=5
 
     )
 
+
+
+
+
+    # =====================================
+    # Send Button
+    # =====================================
 
 
     send_button = tk.Button(
 
         window,
 
-        text="Send"
+        text="Send",
+
+        width=12,
+
+        font=BUTTON_FONT,
+
+        bg=SEND_BUTTON_COLOR,
+
+        fg="white",
+
+        activebackground=SEND_BUTTON_COLOR
 
     )
 
 
     send_button.pack(
+
         pady=10
+
     )
+
+
 
 
 
@@ -129,10 +204,20 @@ def open_chat_window(parent_window):
         Return to previous window.
         """
 
+
         window.destroy()
+
+
 
         parent_window.deiconify()
 
+
+
+
+
+    # =====================================
+    # Back Button
+    # =====================================
 
 
     back_button = tk.Button(
@@ -141,9 +226,40 @@ def open_chat_window(parent_window):
 
         text="Back",
 
-        command=back
+        command=back,
+
+        width=12,
+
+        font=BUTTON_FONT,
+
+        bg=BACK_BUTTON_COLOR,
+
+        fg="white",
+
+        activebackground=BACK_BUTTON_COLOR
 
     )
 
 
-    back_button.pack()
+    back_button.pack(
+
+        pady=10
+
+    )
+
+
+
+
+
+    # =====================================
+    # Prevent application exit
+    # =====================================
+
+
+    window.protocol(
+
+        "WM_DELETE_WINDOW",
+
+        back
+
+    )

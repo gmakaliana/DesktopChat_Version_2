@@ -1,6 +1,3 @@
-# client/gui/contacts_window.py
-
-
 """
 Contacts Window
 
@@ -17,7 +14,25 @@ Future functionality:
 
 import tkinter as tk
 
+
 from client.modules.utils.window_utils import center_window
+
+
+from client.modules.utils.gui_theme import (
+
+    BACKGROUND_COLOR,
+
+    TITLE_FONT,
+
+    NORMAL_FONT,
+
+    BUTTON_FONT,
+
+    BACK_BUTTON_COLOR
+
+)
+
+
 
 
 
@@ -31,10 +46,13 @@ def open_contacts_window(parent_window):
     """
 
 
+
     parent_window.withdraw()
 
 
+
     window = tk.Toplevel()
+
 
 
     window.title(
@@ -42,11 +60,32 @@ def open_contacts_window(parent_window):
     )
 
 
+
     center_window(
+
         window,
+
         500,
+
         500
+
     )
+
+
+
+    window.configure(
+
+        bg=BACKGROUND_COLOR
+
+    )
+
+
+
+
+
+    # =====================================
+    # Window Title
+    # =====================================
 
 
     title = tk.Label(
@@ -55,33 +94,51 @@ def open_contacts_window(parent_window):
 
         text="Contacts",
 
-        font=(
-            "Arial",
-            16,
-            "bold"
-        )
+        font=TITLE_FONT,
+
+        bg=BACKGROUND_COLOR
 
     )
 
 
     title.pack(
+
         pady=30
+
     )
 
 
-    # Placeholder contact list
+
+
+
+    # =====================================
+    # Contact List
+    # =====================================
+
 
     contact_list = tk.Listbox(
-        window
+
+        window,
+
+        font=NORMAL_FONT
+
     )
 
 
     contact_list.pack(
+
         expand=True,
+
         fill="both",
+
         padx=20,
+
         pady=20
+
     )
+
+
+
 
 
     def back():
@@ -90,10 +147,20 @@ def open_contacts_window(parent_window):
         Return to previous window.
         """
 
+
         window.destroy()
+
+
 
         parent_window.deiconify()
 
+
+
+
+
+    # =====================================
+    # Back Button
+    # =====================================
 
 
     back_button = tk.Button(
@@ -102,11 +169,40 @@ def open_contacts_window(parent_window):
 
         text="Back",
 
-        command=back
+        command=back,
+
+        width=12,
+
+        font=BUTTON_FONT,
+
+        bg=BACK_BUTTON_COLOR,
+
+        fg="white",
+
+        activebackground=BACK_BUTTON_COLOR
 
     )
 
 
     back_button.pack(
+
         pady=10
+
+    )
+
+
+
+
+
+    # =====================================
+    # Prevent application exit
+    # =====================================
+
+
+    window.protocol(
+
+        "WM_DELETE_WINDOW",
+
+        back
+
     )

@@ -1,6 +1,3 @@
-# client/utils/gui_theme.py
-
-
 """
 Application theme configuration.
 
@@ -17,6 +14,18 @@ BACKGROUND_COLOR = "#F2F2F2"
 PRIMARY_COLOR = "#2C3E50"
 
 BUTTON_COLOR = "#3498DB"
+
+LOGIN_BUTTON_COLOR = "#27AE60"
+
+REGISTER_BUTTON_COLOR = "#3498DB"
+
+LOGOUT_BUTTON_COLOR = "#E74C3C"
+
+BACK_BUTTON_COLOR = "#7F8C8D"
+
+SEND_BUTTON_COLOR = "#27AE60"
+
+NORMAL_BUTTON_COLOR = "#3498DB"
 
 TEXT_COLOR = "#000000"
 
@@ -49,4 +58,3 @@ BUTTON_FONT = (
     10,
     "bold"
 )
-

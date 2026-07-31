@@ -1,6 +1,3 @@
-# client/gui/login_window.py
-
-
 """
 Login Window
 
@@ -12,7 +9,6 @@ Responsible for:
 Authentication logic is handled
 inside client/auth/login.py.
 """
-
 
 
 import tkinter as tk
@@ -27,7 +23,13 @@ from client.modules.utils.gui_theme import (
 
     TITLE_FONT,
 
-    NORMAL_FONT
+    NORMAL_FONT,
+
+    BUTTON_FONT,
+
+    LOGIN_BUTTON_COLOR,
+
+    REGISTER_BUTTON_COLOR
 
 )
 
@@ -68,9 +70,7 @@ def open_login_window():
 
 
     window.title(
-
         "Desktop Chat System"
-
     )
 
 
@@ -336,32 +336,6 @@ def open_login_window():
 
 
     # =====================================
-    # Login Button
-    # =====================================
-
-
-    login_button = tk.Button(
-
-        window,
-
-        text="Login",
-
-        command=login_action
-
-    )
-
-
-    login_button.pack(
-
-        pady=20
-
-    )
-
-
-
-
-
-    # =====================================
     # Register Window
     # =====================================
 
@@ -387,22 +361,90 @@ def open_login_window():
 
 
 
+    # =====================================
+    # Login and Register Buttons
+    # =====================================
 
-    register_button = tk.Button(
+
+    button_frame = tk.Frame(
 
         window,
 
-        text="Register",
-
-        command=open_register
+        bg=BACKGROUND_COLOR
 
     )
 
 
-    register_button.pack()
+    button_frame.pack(
+
+        pady=25
+
+    )
 
 
 
 
+
+    login_button = tk.Button(
+
+        button_frame,
+
+        text="Login",
+
+        command=login_action,
+
+        width=12,
+
+        font=BUTTON_FONT,
+
+        bg=LOGIN_BUTTON_COLOR,
+
+        fg="white",
+
+        activebackground=LOGIN_BUTTON_COLOR
+
+    )
+
+
+    login_button.pack(
+
+        side="left",
+
+        padx=10
+
+    )
+
+
+
+
+
+    register_button = tk.Button(
+
+        button_frame,
+
+        text="Register",
+
+        command=open_register,
+
+        width=12,
+
+        font=BUTTON_FONT,
+
+        bg=REGISTER_BUTTON_COLOR,
+
+        fg="white",
+
+        activebackground=REGISTER_BUTTON_COLOR
+
+    )
+
+
+    register_button.pack(
+
+        side="right",
+
+        padx=10
+
+    )
 
     window.mainloop()
