@@ -6,21 +6,237 @@ Responsibilities:
 - disconnect from server
 - send data
 - receive data
-
-This file communicates directly
-with the WebSocket library.
-
-Other client modules should NOT
-import this file directly.
+- maintain heartbeat
+- separate heartbeat packets from application responses
 """
 
 
 import websocket
 
+import threading
+
+import time
+
+import queue
 
 
-# Stores the active WebSocket connection
+
+# Active WebSocket connection
+
 connection = None
+
+
+
+# Heartbeat control
+
+heartbeat_running = False
+
+
+
+# Receiver control
+
+receiver_running = False
+
+
+
+# Stores server responses
+
+response_queue = queue.Queue()
+
+
+
+
+
+def start_receiver():
+
+    """
+    Continuously receives messages
+    from server.
+    """
+
+
+    global receiver_running
+
+
+    from shared.events import PONG
+
+
+
+    receiver_running = True
+
+
+
+    def receiver():
+
+        while receiver_running:
+
+
+            try:
+
+
+                message = connection.recv()
+
+
+
+                if message:
+
+
+                    import json
+
+
+                    packet = json.loads(
+
+                        message
+
+                    )
+
+
+                    event = packet.get(
+
+                        "event"
+
+                    )
+
+
+
+                    # Ignore heartbeat response
+
+                    if event == PONG:
+
+
+                        continue
+
+
+
+                    response_queue.put(
+
+                        message
+
+                    )
+
+
+
+            except Exception as error:
+
+
+                print(
+
+                    "Receiver error:",
+
+                    error
+
+                )
+
+
+                break
+
+
+
+    thread = threading.Thread(
+
+        target=receiver,
+
+        daemon=True
+
+    )
+
+
+    thread.start()
+
+
+
+
+
+
+
+def start_heartbeat():
+
+    """
+    Sends heartbeat packets.
+    """
+
+
+    global heartbeat_running
+
+
+    from shared.protocol import create_packet
+
+    from shared.events import PING
+
+
+
+    heartbeat_running = True
+
+
+
+    def heartbeat():
+
+
+        while heartbeat_running:
+
+
+            try:
+
+
+                if connection:
+
+
+                    packet = create_packet(
+
+                        PING,
+
+                        {}
+
+                    )
+
+
+                    connection.send(
+
+                        packet
+
+                    )
+
+
+                    print(
+
+                        "Heartbeat sent."
+
+                    )
+
+
+
+            except Exception as error:
+
+
+                print(
+
+                    "Heartbeat error:",
+
+                    error
+
+                )
+
+
+                break
+
+
+
+            time.sleep(20)
+
+
+
+    thread = threading.Thread(
+
+        target=heartbeat,
+
+        daemon=True
+
+    )
+
+
+    thread.start()
+
+
 
 
 
@@ -30,37 +246,46 @@ def connect(url):
 
     """
     Creates WebSocket connection.
-
-    Parameters:
-        url:
-            Server WebSocket address.
-
-    Returns:
-        True  - connection successful
-        False - connection failed
     """
+
 
     global connection
 
 
+
     try:
 
-        # Create WebSocket object
+
         connection = websocket.WebSocket()
 
 
-        # Connect to server
+
         connection.connect(
+
             url
+
         )
+
 
 
         print(
+
             "Connected to server."
+
         )
 
 
+
+        start_receiver()
+
+
+        start_heartbeat()
+
+
+
         return True
+
+
 
 
 
@@ -68,16 +293,19 @@ def connect(url):
 
 
         print(
+
             "WebSocket connection failed:",
+
             error
+
         )
 
 
         connection = None
 
 
-        return False
 
+        return False
 
 
 
@@ -91,7 +319,18 @@ def disconnect():
     Closes WebSocket connection.
     """
 
+
     global connection
+
+    global heartbeat_running
+
+    global receiver_running
+
+
+
+    heartbeat_running = False
+
+    receiver_running = False
 
 
 
@@ -101,13 +340,16 @@ def disconnect():
         connection.close()
 
 
+
         connection = None
 
 
-        print(
-            "Disconnected from server."
-        )
 
+        print(
+
+            "Disconnected from server."
+
+        )
 
 
 
@@ -119,14 +361,6 @@ def send(message):
 
     """
     Sends data to server.
-
-    Parameters:
-        message:
-            Data to send.
-
-    Returns:
-        True  - sent successfully
-        False - failed
     """
 
 
@@ -137,7 +371,9 @@ def send(message):
 
 
             connection.send(
+
                 message
+
             )
 
 
@@ -149,8 +385,11 @@ def send(message):
 
 
             print(
+
                 "Send error:",
+
                 error
+
             )
 
 
@@ -166,39 +405,25 @@ def send(message):
 
 
 
-
 def receive():
 
     """
-    Receives response from server.
-
-    Returns:
-        Server response
-        None if failed
+    Gets next application response.
     """
 
 
-    if connection:
+    try:
 
 
-        try:
+        return response_queue.get(
 
+            timeout=10
 
-            return connection.recv()
-
-
-
-        except Exception as error:
-
-
-            print(
-                "Receive error:",
-                error
-            )
-
-
-            return None
+        )
 
 
 
-    return None
+    except queue.Empty:
+
+
+        return None
