@@ -1,5 +1,5 @@
 """
-Client validation utilities.
+Server validation utilities.
 
 Responsible for validating:
 
@@ -7,13 +7,9 @@ Responsible for validating:
 - password
 - full name
 
-These validations improve the user
-experience before data is sent to
-the server.
-
-NOTE:
-The server performs the same
-validation for security.
+These validations protect the
+server from invalid data even if
+client-side validation is bypassed.
 """
 
 

@@ -1,6 +1,3 @@
-# server/auth/authentication.py
-
-
 """
 Server authentication module.
 
@@ -19,13 +16,14 @@ Database queries
 from server.database.queries import create_user
 from server.database.queries import get_user_by_username
 
-
 from server.auth.password_utils import hash_password
 from server.auth.password_utils import verify_password
 
+from server.utils.validation import validate_username
+from server.utils.validation import validate_password
+from server.utils.validation import validate_full_name
 
 from shared.protocol import create_packet
-
 
 from shared.events import (
 
@@ -45,40 +43,89 @@ def register(data):
 
     """
     Creates a new user account.
-
-    Data received:
-
-    {
-        username,
-        password,
-        full_name
-    }
-
-    Password is hashed before storage.
     """
 
+    username = data["username"].strip()
 
-    password_hash = hash_password(
+    password = data["password"]
 
-        data["password"]
+    full_name = data["full_name"].strip()
 
+    # -------------------------
+    # Username validation
+    # -------------------------
+
+    valid, message = validate_username(
+        username
     )
 
+    if not valid:
+
+        return create_packet(
+
+            REGISTER_FAILED,
+
+            {
+                "message": message
+            }
+
+        )
+
+    # -------------------------
+    # Password validation
+    # -------------------------
+
+    valid, message = validate_password(
+        password
+    )
+
+    if not valid:
+
+        return create_packet(
+
+            REGISTER_FAILED,
+
+            {
+                "message": message
+            }
+
+        )
+
+    # -------------------------
+    # Full name validation
+    # -------------------------
+
+    valid, message = validate_full_name(
+        full_name
+    )
+
+    if not valid:
+
+        return create_packet(
+
+            REGISTER_FAILED,
+
+            {
+                "message": message
+            }
+
+        )
+
+    password_hash = hash_password(
+        password
+    )
 
     result = create_user(
 
-        data["username"],
+        username,
 
         password_hash,
 
-        data["full_name"]
+        full_name
 
     )
 
-
-
     if result:
-
 
         return create_packet(
 
@@ -92,8 +139,6 @@ def register(data):
             }
 
         )
-
-
 
     return create_packet(
 
@@ -114,12 +159,7 @@ def login(data):
 
     """
     Authenticates user.
-
-    Checks:
-    - username exists
-    - password matches hash
     """
-
 
     user = get_user_by_username(
 
@@ -127,10 +167,7 @@ def login(data):
 
     )
 
-
-
     if user is None:
-
 
         return create_packet(
 
@@ -145,8 +182,6 @@ def login(data):
 
         )
 
-
-
     password_correct = verify_password(
 
         data["password"],
@@ -155,10 +190,7 @@ def login(data):
 
     )
 
-
-
     if password_correct:
-
 
         return create_packet(
 
@@ -169,10 +201,8 @@ def login(data):
                 "user_id":
                 user["user_id"],
 
-
                 "username":
                 user["username"],
-
 
                 "full_name":
                 user["full_name"]
@@ -180,8 +210,6 @@ def login(data):
             }
 
         )
-
-
 
     return create_packet(
 

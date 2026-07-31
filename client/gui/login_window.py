@@ -1,3 +1,6 @@
+# client/gui/login_window.py
+
+
 """
 Login Window
 
@@ -5,6 +8,7 @@ Responsible for:
 - collecting username/password
 - sending login request
 - opening home window after success
+- clearing entered credentials after login
 
 Authentication logic is handled
 inside client/auth/login.py.
@@ -232,16 +236,13 @@ def open_login_window():
         """
 
 
-
         username = username_entry.get()
 
         password = password_entry.get()
 
 
 
-
         if username == "" or password == "":
-
 
             messagebox.showwarning(
 
@@ -250,7 +251,6 @@ def open_login_window():
                 "Please enter username and password."
 
             )
-
 
             return
 
@@ -281,7 +281,6 @@ def open_login_window():
 
             )
 
-
             return
 
 
@@ -289,7 +288,6 @@ def open_login_window():
 
 
         if response.get("event") == "LOGIN_SUCCESS":
-
 
 
             user_data = response.get(
@@ -303,6 +301,34 @@ def open_login_window():
             set_current_user(
 
                 user_data
+
+            )
+
+
+
+            # =================================
+            # Clear login credentials
+            # =================================
+            #
+            # Prevents previous username and
+            # password from remaining visible
+            # after successful login.
+            #
+
+            username_entry.delete(
+
+                0,
+
+                tk.END
+
+            )
+
+
+            password_entry.delete(
+
+                0,
+
+                tk.END
 
             )
 
@@ -361,6 +387,8 @@ def open_login_window():
 
 
 
+
+
     # =====================================
     # Login and Register Buttons
     # =====================================
@@ -384,6 +412,8 @@ def open_login_window():
 
 
 
+
+    # Login button LEFT
 
     login_button = tk.Button(
 
@@ -418,6 +448,8 @@ def open_login_window():
 
 
 
+    # Register button RIGHT
+
     register_button = tk.Button(
 
         button_frame,
@@ -446,5 +478,9 @@ def open_login_window():
         padx=10
 
     )
+
+
+
+
 
     window.mainloop()
