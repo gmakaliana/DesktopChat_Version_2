@@ -45,12 +45,12 @@ def register_user_connection(
 
 def remove_user_connection(user_id):
     """
-    Removes a user's connection.
+    Marks a user as logged out.
+
+    Keeps the WebSocket connection alive.
+    The connection is only removed when
+    the socket actually disconnects.
     """
-
-    if user_id in connected_users:
-
-        del connected_users[user_id]
 
     update_user_status(
         user_id,
@@ -64,12 +64,12 @@ def remove_user_connection(user_id):
 
 def disconnect_client(websocket):
     """
-    Handles unexpected disconnect.
+    Handles unexpected WebSocket disconnect.
     """
 
     disconnected_user = None
 
-    for user_id, socket in connected_users.items():
+    for user_id, socket in list(connected_users.items()):
 
         if socket == websocket:
 
@@ -77,17 +77,25 @@ def disconnect_client(websocket):
 
             break
 
+
     if disconnected_user is not None:
 
-        remove_user_connection(
+        del connected_users[disconnected_user]
+
+        update_user_status(
+            disconnected_user,
+            "Offline"
+        )
+
+        update_last_seen(
             disconnected_user
         )
+
 
     print(
         "Active users:",
         len(connected_users)
     )
-
 
 def get_connected_clients():
     """

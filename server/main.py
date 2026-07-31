@@ -1,6 +1,5 @@
 # server/main.py
 
-
 """
 Desktop Chat Server
 
@@ -52,16 +51,14 @@ app = FastAPI(
 @app.on_event("startup")
 async def startup_event():
     """
-    Runs when the server starts.
+    Runs when server starts.
     """
 
     create_tables()
 
     print("=" * 50)
     print("Desktop Chat Server Started...")
-    print(
-        f"Listening on {SERVER_HOST}:{SERVER_PORT}"
-    )
+    print(f"Listening on {SERVER_HOST}:{SERVER_PORT}")
     print("=" * 50)
 
 
@@ -79,14 +76,10 @@ def home():
 
 @app.websocket(WEBSOCKET_ENDPOINT)
 async def websocket_endpoint(
-        websocket: WebSocket
+    websocket: WebSocket
 ):
     """
     Main WebSocket endpoint.
-
-    Receives packets from clients
-    and routes them to the correct
-    server functionality.
     """
 
     await connect_client(
@@ -96,10 +89,6 @@ async def websocket_endpoint(
     try:
 
         while True:
-
-            # ---------------------------------
-            # Receive packet from client
-            # ---------------------------------
 
             message = await websocket.receive_text()
 
@@ -124,7 +113,7 @@ async def websocket_endpoint(
             response = None
 
             # ---------------------------------
-            # User Registration
+            # Register
             # ---------------------------------
 
             if event == REGISTER:
@@ -134,7 +123,7 @@ async def websocket_endpoint(
                 )
 
             # ---------------------------------
-            # User Login
+            # Login
             # ---------------------------------
 
             elif event == LOGIN:
@@ -142,10 +131,6 @@ async def websocket_endpoint(
                 response = login(
                     data
                 )
-
-                # Login successful
-                # Associate this socket with
-                # the authenticated user.
 
                 if response is not None:
 
@@ -172,7 +157,7 @@ async def websocket_endpoint(
                         )
 
             # ---------------------------------
-            # User Logout
+            # Logout
             # ---------------------------------
 
             elif event == LOGOUT:
@@ -202,7 +187,7 @@ async def websocket_endpoint(
                 )
 
             # ---------------------------------
-            # Send response back to client
+            # Send response
             # ---------------------------------
 
             if response is not None:

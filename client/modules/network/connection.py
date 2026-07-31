@@ -10,9 +10,9 @@ websocket_client.py.
 Responsibilities:
 - initialize connection
 - send requests
+- send events
 - receive responses
 """
-
 
 
 from client.modules.network.websocket_client import connect
@@ -26,8 +26,8 @@ from client.modules.network.websocket_client import receive
 
 
 # Desktop Chat Server address
-SERVER_URL = "ws://127.0.0.1:8000/ws"
 
+SERVER_URL = "ws://127.0.0.1:8000/ws"
 
 
 
@@ -46,7 +46,6 @@ def initialize_network():
     """
 
 
-
     result = connect(
 
         SERVER_URL
@@ -54,9 +53,7 @@ def initialize_network():
     )
 
 
-
     return result
-
 
 
 
@@ -70,8 +67,9 @@ def send_request(data):
     Sends request to server
     and waits for response.
 
-    Converts server JSON response
-    into Python dictionary.
+    Used for:
+    - LOGIN
+    - REGISTER
     """
 
 
@@ -87,12 +85,11 @@ def send_request(data):
 
 
 
-    # Stop if sending failed
-
     if not sent:
 
 
         return None
+
 
 
 
@@ -130,5 +127,32 @@ def send_request(data):
 
 
 
-
     return None
+
+
+
+
+
+
+
+def send_event(data):
+
+    """
+    Sends event to server.
+
+    Does NOT wait for response.
+
+    Used for:
+    - LOGOUT
+    - STATUS updates
+    """
+
+
+    sent = send(
+
+        data
+
+    )
+
+
+    return sent

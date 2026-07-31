@@ -58,7 +58,15 @@ def start_application():
 
     # Initialize networking
 
-    initialize_network()
+    network_started = initialize_network()
+
+    if not network_started:
+
+        print(
+            "Could not connect to server."
+        )
+
+        return
 
 
 

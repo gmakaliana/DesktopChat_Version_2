@@ -1,6 +1,3 @@
-# shared/events.py
-
-
 """
 WebSocket event names.
 
@@ -47,6 +44,10 @@ REGISTER_FAILED = "REGISTER_FAILED"
 
 
 LOGOUT = "LOGOUT"
+
+
+
+STATUS_UPDATE = "STATUS_UPDATE"
 
 
 
